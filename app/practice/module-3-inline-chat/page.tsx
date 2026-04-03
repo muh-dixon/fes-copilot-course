@@ -146,26 +146,23 @@ function PromiseBasedComponent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // This uses .then() chains - convert it to async/await!
-  const fetchUserData = () => {
+  // This uses async/await!
+  const fetchUserData = async () => {
     setLoading(true)
     setError(null)
 
-    fetch('https://jsonplaceholder.typicode.com/users/1')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-        return response.json()
-      })
-      .then(userData => {
-        setData(userData)
-        setLoading(false)
-      })
-      .catch(err => {
-        setError(err.message)
-        setLoading(false)
-      })
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users/1')
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const userData = await response.json()
+      setData(userData)
+      setLoading(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      setLoading(false)
+    }
   }
 
   return (
@@ -252,6 +249,7 @@ function InaccessibleForm() {
         <div style={{ marginTop: '12px' }}>
           <button
             type="submit"
+            aria-label="Submit Form"
             style={{
               background: '#3B82F6',
               color: 'white',
@@ -272,37 +270,49 @@ function InaccessibleForm() {
  * 🧹 MESSY COMPONENT
  * Refactor this into smaller, clearer functions!
  * ========================================== */
+
+// Optimized: Combined sorting logic into a helper
+function getSortComparator(sort: string) {
+  return (a: (typeof initialItems)[0], b: (typeof initialItems)[0]) => {
+    if (sort === 'name') return a.name.localeCompare(b.name)
+    if (sort === 'price') return a.price - b.price
+    return 0
+  }
+}
+
+// Optimized: Calculate discount with consistent logic
+function formatItemPrice(item: (typeof initialItems)[0]) {
+  const isOnSale = item.price > 2
+  const discountedPrice = isOnSale ? item.price * 0.9 : item.price
+  const formattedPrice = `$${discountedPrice.toFixed(2)}`
+  return { ...item, discountedPrice, formattedPrice, isOnSale }
+}
+
+// Optimized: Single pass processing
+function processItems(items: typeof initialItems, filter: string, sort: string) {
+  return items
+    .filter(
+      item =>
+        item.inStock && (filter === '' || item.category.toLowerCase() === filter.toLowerCase())
+    )
+    .sort(getSortComparator(sort))
+    .map(formatItemPrice)
+}
+
+const initialItems = [
+  { id: 1, name: 'Apple', category: 'Fruit', price: 1.5, inStock: true },
+  { id: 2, name: 'Banana', category: 'Fruit', price: 0.8, inStock: true },
+  { id: 3, name: 'Carrot', category: 'Vegetable', price: 1.2, inStock: false },
+  { id: 4, name: 'Dates', category: 'Fruit', price: 3.0, inStock: true },
+]
+
 function MessyComponent() {
-  const [items, setItems] = useState([
-    { id: 1, name: 'Apple', category: 'Fruit', price: 1.5, inStock: true },
-    { id: 2, name: 'Banana', category: 'Fruit', price: 0.8, inStock: true },
-    { id: 3, name: 'Carrot', category: 'Vegetable', price: 1.2, inStock: false },
-    { id: 4, name: 'Dates', category: 'Fruit', price: 3.0, inStock: true },
-  ])
+  const [items, setItems] = useState(initialItems)
   const [filter, setFilter] = useState('')
   const [sort, setSort] = useState('name')
 
-  // This is too long and does too many things - break it down!
-  const processedItems = items
-    .filter(item => {
-      if (filter === '') return true
-      return item.category.toLowerCase() === filter.toLowerCase()
-    })
-    .filter(item => item.inStock)
-    .sort((a, b) => {
-      if (sort === 'name') {
-        return a.name.localeCompare(b.name)
-      } else if (sort === 'price') {
-        return a.price - b.price
-      }
-      return 0
-    })
-    .map(item => {
-      const discountedPrice = item.price > 2 ? item.price * 0.9 : item.price
-      const formattedPrice = `$${discountedPrice.toFixed(2)}`
-      const isOnSale = item.price > 2
-      return { ...item, discountedPrice, formattedPrice, isOnSale }
-    })
+  // Use helper functions for clarity
+  const processedItems = processItems(items, filter, sort)
 
   return (
     <div className="space-y-4">
