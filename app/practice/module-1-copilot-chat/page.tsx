@@ -79,6 +79,11 @@ export default function Module1Practice() {
             
             */}
           </section>
+
+          <section className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-2xl font-semibold mb-4">Feedback Form</h2>
+            <FeedbackForm />
+          </section>
         </div>
       </div>
     </div>
@@ -203,6 +208,75 @@ function ComplexFilter() {
         <p className="text-center text-gray-500">No products found</p>
       )}
     </div>
+  )
+}
+
+// Feedback form component
+function FeedbackForm() {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('Form submitted:', formData)
+    setFormData({ name: '', email: '', message: '' })
+  }
+
+  const isFormValid = formData.name.trim() && formData.email.trim() && formData.message.trim()
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 max-w-md mx-auto p-6 bg-white rounded-lg shadow-md"
+    >
+      <div>
+        <label className="block text-sm font-medium mb-2 text-gray-700">Name</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Your name"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-2 text-gray-700">Email</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Your email"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-2 text-gray-700">Message</label>
+        <textarea
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Your feedback"
+          rows={4}
+        />
+      </div>
+      <button
+        type="submit"
+        disabled={!isFormValid}
+        className="w-full px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+      >
+        Submit Feedback
+      </button>
+    </form>
   )
 }
 
