@@ -1,3 +1,14 @@
+# Copilot Instructions
+
+- Use React functional components with arrow functions.  
+- Write TypeScript types or interfaces for all component props.  
+- Style with Tailwind CSS; avoid inline styles.  
+- Keep components small, clean, and modular.  
+- Add short, meaningful comments for logic that isn't obvious.  
+- Prefer accessibility-first HTML (semantic elements and labeled inputs).
+- Prefer components from shadcn/ui before creating new ones from scratch.
+- Use `px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700` for all primary buttons.
+
 # GitHub Copilot Instructions for FES Course
 
 ## Code Style Guidelines
